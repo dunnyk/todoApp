@@ -1,7 +1,5 @@
 import http
-from flask import request
-from flask_login import current_user
-from helpers.log import login_user
+from flask import jsonify, request
 from models.tasks.models import Task
 
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -9,9 +7,8 @@ from models.users.models import User
 from utilities.database import db
 
 
-# @tasks_bp.route("/", methods=["POST"])
 @jwt_required()
-def task_create(data: dict) -> dict:
+def create_task(data: dict) -> dict:
 
     user_id = get_jwt_identity()
 
@@ -35,3 +32,10 @@ def task_create(data: dict) -> dict:
     db.session.add(task)
     db.session.commit()
     return {"message": "Task created successfully"}, http.HTTPStatus.CREATED
+
+
+@jwt_required()
+def get_all_task():
+    users = User.query.all()
+    users_dict = [user.to_dict() for user in users]
+    return jsonify(users_dict)

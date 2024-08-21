@@ -1,3 +1,4 @@
+from crypt import methods
 from flask import request
 
 from app import create_app, tasks_api, tasks_bp, auth_api, auth_bp
@@ -50,20 +51,26 @@ task_model = tasks_api.model(
 )
 
 
-@tasks_api.route("/task_create")
+@tasks_api.route("/task_create", methods=["POST", "GET"])
 class TaskCreationModel(Resource):
 
     @tasks_api.expect(task_model)
     def post(self: dict) -> dict:
-        from api_endpoints.task_views import task_create
+        from api_endpoints.task_views import create_task
 
         data = request.get_json()
-        return task_create(data)
+        return create_task(data)
+
+    def get(self: dict) -> dict:
+        from api_endpoints.task_views import get_all_task
+
+        return get_all_task()
 
 
 tasks_api.add_resource(TaskCreationModel, "/task_create")
 
 
+# @tasks_bp.route("/", methods=["POST"])
 @auth_api.route("/register")
 class RegistrationModel(Resource):
 

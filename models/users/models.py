@@ -61,3 +61,12 @@ class User(UserMixin, db.Model):
         if self.password_hash is None:
             return False
         return check_password_hash(self.password_hash, password)
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "username": self.username,
+            "email": self.email,
+        }
