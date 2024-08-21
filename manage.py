@@ -50,20 +50,43 @@ task_model = tasks_api.model(
 )
 
 
-@tasks_api.route("/task_create")
+@tasks_api.route("/task_create", methods=["POST", "GET"])
+@tasks_api.route("/task_create/<int:task_id>", methods=["GET", "PUT", "DELETE"])
 class TaskCreationModel(Resource):
 
     @tasks_api.expect(task_model)
     def post(self: dict) -> dict:
-        from api_endpoints.task_views import task_create
+        from api_endpoints.task_views import create_task
 
         data = request.get_json()
-        return task_create(data)
+        return create_task(data)
+
+    def get(self, task_id=None) -> dict:
+        if task_id:
+            from api_endpoints.task_views import get_task_by_id
+
+            return get_task_by_id(task_id)
+        else:
+            from api_endpoints.task_views import get_all_task
+
+            return get_all_task()
+
+    def put(self, task_id=None) -> dict:
+        from api_endpoints.task_views import update_task
+
+        data = request.get_json()
+        return update_task(task_id, data)
+
+    def delete(self, task_id: int) -> dict:
+        from api_endpoints.task_views import delete_task
+
+        return delete_task(task_id)
 
 
 tasks_api.add_resource(TaskCreationModel, "/task_create")
 
 
+# @tasks_bp.route("/", methods=["POST"])
 @auth_api.route("/register")
 class RegistrationModel(Resource):
 
