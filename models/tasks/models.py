@@ -1,3 +1,4 @@
+from models import tasks
 from utilities.database import db
 
 
@@ -21,19 +22,40 @@ class Task(db.Model):
     user = db.relationship("User", back_populates="tasks")
 
     def __str__(self) -> str:
-        return self.name
+        return self.task_name
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "task_name": self.task_name,
+            "description": self.description,
+            "completed": self.completed,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "due_date": self.due_date.isoformat() if self.due_date else None,
+            "user_id": self.user_id,
+            "tags": [tag.to_dict() for tag in self.tags] if self.tags else [],
+        }
 
 
 class Tag(db.Model):
     __tablename__ = "tags"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
+    tag_name = db.Column(db.String(50), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     user = db.relationship("User", back_populates="tags")
     tasks = db.relationship(Task, secondary="task_tags", back_populates="tags")
 
     def __str__(self) -> str:
         return self.name + " is the name of the tag"
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "tag_name": self.name,
+            "user_id": self.user_id,
+            "tasks": [task.to_dict() for task in tasks],
+        }
 
 
 task_tags = db.Table(
