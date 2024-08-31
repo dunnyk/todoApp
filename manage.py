@@ -2,7 +2,7 @@ from flask import request
 
 from app import create_app, tasks_api, tasks_bp, auth_api, auth_bp
 from flask_restx import fields, Resource
-from helpers.log import log_number, add_to_user_table, login_user
+from helpers.user_service import add_to_user_table, login_user
 
 app = create_app()
 
@@ -105,16 +105,8 @@ class Login(Resource):
         return login_user(data)
 
 
-@auth_api.expect(user_model)
-@auth_api.route("/")
-class UserModel(Resource):
-    def post(self):
-        data = request.get_json()
-        # print(data)
-        return log_number(data)
-
-
 app.register_blueprint(tasks_bp)
 app.register_blueprint(auth_bp)
+
 if __name__ == "__main__":
     app.run(debug=True, port=5002)

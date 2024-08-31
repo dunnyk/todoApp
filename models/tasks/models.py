@@ -1,4 +1,3 @@
-from models import tasks
 from utilities.database import db
 
 
@@ -52,9 +51,9 @@ class Tag(db.Model):
     def to_dict(self) -> dict:
         return {
             "id": self.id,
-            "tag_name": self.name,
+            "tag_name": self.tag_name,
             "user_id": self.user_id,
-            "tasks": [task.to_dict() for task in tasks],
+            "tasks": [task.id for task in self.tasks],
         }
 
 
