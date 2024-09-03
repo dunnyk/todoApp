@@ -1,10 +1,11 @@
 import http
-from flask import jsonify, request
+from flask import request
 from models.tasks.models import Task
 
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.users.models import User
 from utilities.database import db
+from helpers.task_tag_service import create_tag
 
 
 @jwt_required()
@@ -28,24 +29,29 @@ def create_task(data: dict) -> dict:
     if db_task:
         return {"error": "Task already exists"}, http.HTTPStatus.CONFLICT
 
+    tags = data.pop("tags", [])
     task = Task(**data)
     db.session.add(task)
+    create_tag(task, tags, user_id)
     db.session.commit()
     return {"message": "Task created successfully"}, http.HTTPStatus.CREATED
 
 
 @jwt_required()
 def get_all_task():
-    users = Task.query.all()
-    users_dict = [user.to_dict() for user in users]
-    return jsonify(users_dict)
+    tasks = Task.query.all()
+    tasks_dict = [task.to_dict() for task in tasks]
+    return {"message": "All tasks retrieved successfully", "tasks_dict": tasks_dict}
 
 
 @jwt_required()
 def get_task_by_id(task_id):
 
     task = Task.query.get_or_404(task_id, "That task does not exist")
-    return task.to_dict()
+    return {
+        "message": f"`{task.task_name}` Task retrieved successfully",
+        "task": task.to_dict(),
+    }
 
 
 @jwt_required()
@@ -68,10 +74,10 @@ def update_task(task_id: int, data: dict):
         task.completed = data.get("completed")
 
     if "tags" in data:
-        task.tags = data.get("tags")
+        tag_names = data.get("tags")
+        create_tag(task, tag_names, task.user_id)
 
     db.session.commit()
-    # task = [tak.to_dict() for tak in task]
     return {
         "message": "Task updated successfully",
         "task": task.to_dict(),

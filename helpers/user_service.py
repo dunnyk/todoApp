@@ -1,25 +1,9 @@
-from hmac import new
 import http
 
 from models.users.models import User, generate_password_hash
 from http import HTTPStatus
 from utilities.database import db
 from flask_jwt_extended import create_access_token
-
-
-def log_number(data: dict) -> dict:
-    if not data:
-        return "User's data must be provided.", HTTPStatus.NO_CONTENT
-
-    try:
-
-        user = User(**data)
-        db.session.add(user)
-        db.session.commit()
-        return {"user data:": f"{user.username} ===> {user.email}"}, 201
-
-    except Exception as error:
-        return {"error": f"{str(error)} after putting data to DB failed \n"}
 
 
 def add_to_user_table(data: dict) -> dict:
@@ -33,7 +17,7 @@ def add_to_user_table(data: dict) -> dict:
 
         if email is not None:
             return {
-                "message": f"User with {data.get('email')} email exists  use another email"
+                "message": f"User with {data.get('email')} email exists use another email"
             }, http.HTTPStatus.BAD_REQUEST
 
         if username is not None:
