@@ -62,6 +62,10 @@ class TaskCreationModel(Resource):
         return create_task(data)
 
     def get(self, task_id=None) -> dict:
+        import http
+
+        if request.method == "OPTIONS":
+            return "", http.HTTPStatus.OK
         if task_id:
             from api_endpoints.task_views import get_task_by_id
 

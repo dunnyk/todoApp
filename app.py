@@ -1,4 +1,6 @@
-from flask import Flask, Blueprint
+import http
+from flask import Flask, Blueprint, request
+from flask_cors import CORS
 from flask_login import LoginManager
 from flask_restx import Api
 from config import AppConfig
@@ -28,6 +30,7 @@ def load_user(user_id):
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(AppConfig)
     db.init_app(app)
     login_manager.init_app(app)
@@ -35,5 +38,11 @@ def create_app():
     # create migration for the app
     Migrate(app, db)
     JWTManager(app)
+
+    # Handle OPTIONS requests globally
+    @app.before_request
+    def handle_options_request():
+        if request.method == "OPTIONS":
+            return "", http.HTTPStatus.OK
 
     return app
