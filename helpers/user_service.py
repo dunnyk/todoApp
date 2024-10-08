@@ -1,6 +1,8 @@
 import http
 
-from models.users.models import User, generate_password_hash
+from models.users.models import User
+from werkzeug.security import generate_password_hash
+
 from http import HTTPStatus
 from utilities.database import db
 from flask_jwt_extended import create_access_token
